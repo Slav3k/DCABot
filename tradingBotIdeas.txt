@@ -1,0 +1,10 @@
+irrational peak catcher
+- try to close within x ammount of time
+- sell in 3 batches at 3 levels from SMA 
+- if 3rd batch is issued, watch out for stop loss
+- if volume is significantly above its MA
+
+
+Trading HUD with python
+- to track my trades / positions
+- maybe automatically close trades with profit
