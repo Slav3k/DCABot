@@ -16,6 +16,7 @@ class DcaBot:
         self.directory = directory
         self.config_file = config_file
         self.add_entry_boot_log()
+        print("")
         print(self.directory)
         print(self.config_file)
         self.read_config()
