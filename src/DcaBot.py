@@ -1,18 +1,10 @@
 from CcxtWrap import DcaBot
 import os
-import json
-import time
-from datetime import datetime
 import argparse
 
 def get_script_folder():
     script_folder = os.path.dirname(os.path.realpath(__file__))
     return script_folder + os.sep
-
-def get_initial_sleep_ms(json_file):
-    with open(get_script_folder() + json_file, "r") as read_json:
-        config = json.load(read_json)
-        return config["initial_sleep_s"]
 
 def parse_input_arg_config():
     # Create an ArgumentParser object
