@@ -1,0 +1,19 @@
+{
+  "exchange_name": "Binance",
+  "api_key": "cJKsMnMEub6hDbdnGwVlsv2olCVAsp2etj74DzB9xuPrKlSRPkav4jFj19ihSWic",
+  "api_secret":  "IBWzzrLDWXFdyRfeZYzyHtFmbij8IpGmEe404WBLqitW4oal0C3DaR2Jk7YSWSd4",
+  "period_hours": 12,
+  "side": "buy",
+  "order_type": "market",
+  "below_above_prc": 0.1,
+  "max_time_open": 6,
+  "initial_sleep_s": 0,
+  "pairs": {
+	  "BTC/EUR": 11.0,
+	  "ETH/EUR": 15.0,
+	  "POLYX/USDT": 11.0,
+	  "POLYX/BTC": 0.0004,
+	  "UNI/USDT": 0,
+	  "AVAX/EUR": 0
+  }
+}
