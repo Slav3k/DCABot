@@ -68,7 +68,7 @@ class DcaBot:
     def __start_print(self):
         print("DCA bot active")
         print(f"Using exchange: {self.exchange_name}")
-        print(f"Buy every: {self.periodHours} hrs")
+        print(f"Period: {self.periodHours} hrs")
         print(f"Order type: {self.order_type}")
 
     def place_buy_below_ask_order(self, trading_pair, quote_qty, percentage_below):
@@ -296,7 +296,7 @@ class DcaBot:
 
         except FileNotFoundError:
             error_msg = "Config file not found. Using default values."
-            directory_msg = f"Directory: {self.directory}"
+            directory_msg = f"Logging / config directory: {self.directory}"
             config_file_msg = f"Config File: {self.config_file}"
             together_msg = f"Together: {os.path.join(self.directory, self.config_file)}"
 
