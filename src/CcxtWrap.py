@@ -191,7 +191,7 @@ class DcaBot:
         lisbon_datetime = original_datetime.astimezone(lisbon_timezone)
 
         # Print the order details to .txt
-        with open(self.directory + "OrderLog.txt", "a") as f:
+        with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
             print("***********************", file=f)
             print(f"Trading Pair: {order['symbol']}", file=f)
             print(f"Avg price: {order['average']}", file=f)
@@ -209,7 +209,7 @@ class DcaBot:
         lisbon_datetime = original_datetime.astimezone(lisbon_timezone)
 
         # Print the order details to .txt
-        with open(self.directory + "OrderLog.txt", "a") as f:
+        with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
             print("***********************", file=f)
             print(f"Order ID: {order['id']}", file=f)
             print(f"Order type: {order['type']}", file=f)
@@ -228,7 +228,7 @@ class DcaBot:
         lisbon_datetime = original_datetime.astimezone(lisbon_timezone)
 
         # Print the order details to .txt
-        with open(self.directory + "OrderLog.txt", "a") as f:
+        with open(os.path.join(self.directory, "OrderLog.txt", "a") as f:
             print("***********************", file=f)
             print(f"Limit order placed", file=f)
             print(f"Order ID: {order['id']}", file=f)
