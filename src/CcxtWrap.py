@@ -182,6 +182,34 @@ class DcaBot:
         except ccxt.BaseError as e:
             print(f"An error occurred in buy_market: {e}")
 
+    def sell_market(self, trading_pair, quote_qty):
+        try:
+            # Fetch the ticker price for the trading pair
+            ticker = self.exch_handle.fetch_ticker(trading_pair)
+            ask_price = ticker['ask']  # Use the ask price for market buy
+
+            # Calculate the base_qty of the base asset to buy with the given quote_qty amount
+            base_qty = quote_qty / ask_price
+            
+            # Create a market sell order
+            order = self.exch_handle.create_market_sell_order(trading_pair, base_qty)
+
+            order_id = order['id']
+            symbol = order['symbol']
+
+            # Loop until the order status is 'closed'
+            while True:
+                order_fetched = self.exch_handle.fetch_order(order_id, symbol=symbol)
+                if order_fetched['status'] == 'closed':
+                    break
+                time.sleep(1) # seconds
+
+            self.print_info_order_closed(order_fetched)
+
+        except ccxt.BaseError as e:
+            print(f"An error occurred in sell_market: {e}")
+
+
     #TODO: create unified print that prints based on open, closed, canceled ...
     def print_info_order_closed(self, order):
         datetime_str = order['datetime'] #2023-10-10T22:50:02.802Z
