@@ -28,11 +28,49 @@ sudo systemctl start dcabot.service
 sudo systemctl daemon-reload
 
 # Useful commands
+# General Service Management
+# List All Services currently registered with systemd
 systemctl list-units --type=service
-- list all services
+# Filter registered Services by Name 
+systemctl list-units --type=service | grep -i DCA
 
+# Specific Service Operations
+# View Service Logs Displays the last 100 log entries for the 'dcabot.service' without using a pager
 sudo journalctl -u dcabot.service -n 100 --no-pager
-- displays journal of the service
-
+# Stop a Service 
+sudo systemctl stop dcabot1.service
+# Restart a Service 
 sudo systemctl restart dcabot.service
-- to restart service after changing period in the config
+
+# Service Enablement/Disablement
+# Enable a Service
+sudo systemctl enable dcabot1.service
+# Disable a Service 
+sudo systemctl disable dcabot1.service
+# Check Service Enablement Checks if 'dcabot1.service' is set to start automatically on boot
+systemctl is-enabled dcabot1.service
+
+
+
+
+
+# Lists all services currently registered with systemd
+systemctl list-units --type=service
+
+# Displays the last 100 log entries for the 'dcabot.service' without using a pager
+sudo journalctl -u dcabot.service -n 100 --no-pager
+
+# Restarts the 'dcabot.service', useful after making configuration changes
+sudo systemctl restart dcabot.service
+
+# Disables 'dcabot1.service' from starting automatically at boot
+sudo systemctl disable dcabot1.service
+
+# Checks if 'dcabot1.service' is set to start automatically on boot
+systemctl is-enabled dcabot1.service
+
+# Stops the 'dcabot1.service', halting its current operations
+sudo systemctl stop dcabot1.service
+
+# Filters and lists all services whose names contain 'DCA', regardless of case
+systemctl list-units --type=service | grep -i DCA
