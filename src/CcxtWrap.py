@@ -190,7 +190,7 @@ class DcaBot:
 
             # Calculate the base_qty of the base asset to buy with the given quote_qty amount
             base_qty = quote_qty / ask_price
-            
+
             # Create a market sell order
             order = self.exch_handle.create_market_sell_order(trading_pair, base_qty)
 
@@ -256,7 +256,7 @@ class DcaBot:
         lisbon_datetime = original_datetime.astimezone(lisbon_timezone)
 
         # Print the order details to .txt
-        with open(os.path.join(self.directory, "OrderLog.txt", "a") as f:
+        with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
             print("***********************", file=f)
             print(f"Limit order placed", file=f)
             print(f"Order ID: {order['id']}", file=f)
@@ -267,7 +267,7 @@ class DcaBot:
             print(f"Limit price: {order['price']}", file=f)
 
     def execute_buy_orders_market(self):
-        with open(self.directory + self.config_file, "r") as read_json:
+        with open(os.path.join(self.directory, self.config_file), "r") as read_json:
             config = json.load(read_json)
             pairs = config["pairs"]
             for pair in pairs:
@@ -275,7 +275,7 @@ class DcaBot:
                 self.buy_market(pair, quote_qty)
 
     def execute_buy_orders_below(self):
-        with open(self.directory + self.config_file, "r") as read_json:
+        with open(os.path.join(self.directory, self.config_file), "r") as read_json:
             config = json.load(read_json)
             pairs = config["pairs"]
             below_ask = config.get("below_above_prc", 0.1)
