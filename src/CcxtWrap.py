@@ -20,6 +20,7 @@ class DcaBot:
         print(self.directory)
         print(self.config_file)
         self.read_config()
+        self.timezone = pytz.timezone('Europe/Lisbon')
 
         # wait x seconds before we start the bot
         time.sleep(self.initial_sleep_s)
@@ -215,8 +216,7 @@ class DcaBot:
         datetime_str = order['datetime'] #2023-10-10T22:50:02.802Z
         original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
         # Convert the original datetime to Lisbon time
-        lisbon_timezone = pytz.timezone('Europe/Lisbon')
-        lisbon_datetime = original_datetime.astimezone(lisbon_timezone)
+        lisbon_datetime = original_datetime.astimezone(self.timezone)
 
         # Print the order details to .txt
         with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
@@ -233,8 +233,7 @@ class DcaBot:
         datetime_str = order['datetime'] #2023-10-10T22:50:02.802Z
         original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
         # Convert the original datetime to Lisbon time
-        lisbon_timezone = pytz.timezone('Europe/Lisbon')
-        lisbon_datetime = original_datetime.astimezone(lisbon_timezone)
+        lisbon_datetime = original_datetime.astimezone(self.timezone)
 
         # Print the order details to .txt
         with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
@@ -252,8 +251,7 @@ class DcaBot:
         datetime_str = order['datetime']
         original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
         # Convert the original datetime to Lisbon time
-        lisbon_timezone = pytz.timezone('Europe/Lisbon')
-        lisbon_datetime = original_datetime.astimezone(lisbon_timezone)
+        lisbon_datetime = original_datetime.astimezone(self.timezone)
 
         # Print the order details to .txt
         with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
