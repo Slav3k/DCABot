@@ -6,6 +6,7 @@ import time
 import json
 import pytz
 import os
+from tzlocal import get_localzone
 
 class ConfigFileNotFoundError(Exception):
     pass
@@ -16,11 +17,7 @@ class DcaBot:
         self.directory = directory
         self.config_file = config_file
         self.add_entry_boot_log()
-        print("")
-        print(self.directory)
-        print(self.config_file)
         self.read_config()
-        self.timezone = pytz.timezone('Europe/Lisbon')
 
         # wait x seconds before we start the bot
         time.sleep(self.initial_sleep_s)
@@ -40,6 +37,9 @@ class DcaBot:
                     ct = datetime.now()
                     print("**********************************", file=f)
                     print("Boot time: ", datetime.fromtimestamp(int(ct.timestamp())), file=f)
+                    print("")
+                    print("PWD: " + self.directory, file=f)
+                    print("config file: " + self.config_file, file=f)
 
         except (FileNotFoundError, OSError) as e:
             print(f"An error occurred while adding entry to boot log: {e}")
@@ -216,7 +216,7 @@ class DcaBot:
         datetime_str = order['datetime'] #2023-10-10T22:50:02.802Z
         original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
         # Convert the original datetime to Lisbon time
-        lisbon_datetime = original_datetime.astimezone(self.timezone)
+        datetime = original_datetime.astimezone(self.timezone)
 
         # Print the order details to .txt
         with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
@@ -225,7 +225,7 @@ class DcaBot:
             print(f"Avg price: {order['average']}", file=f)
             print(f"Base quantity: {order['filled']}", file=f)
             print(f"Order type: {order['type']}", file=f)
-            print(f"Time: {lisbon_datetime.strftime('%Y-%m-%d %H:%M:%S')}", file=f)
+            print(f"Time: {datetime.strftime('%Y-%m-%d %H:%M:%S')}", file=f)
             print(f"Status: {order['status']}", file=f)
             print(f"Order ID: {order['id']}", file=f)
 
@@ -233,14 +233,14 @@ class DcaBot:
         datetime_str = order['datetime'] #2023-10-10T22:50:02.802Z
         original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
         # Convert the original datetime to Lisbon time
-        lisbon_datetime = original_datetime.astimezone(self.timezone)
+        datetime = original_datetime.astimezone(self.timezone)
 
         # Print the order details to .txt
         with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
             print("***********************", file=f)
             print(f"Order ID: {order['id']}", file=f)
             print(f"Order type: {order['type']}", file=f)
-            print(f"Time: {lisbon_datetime.strftime('%Y-%m-%d %H:%M:%S')}", file=f)
+            print(f"Time: {datetime.strftime('%Y-%m-%d %H:%M:%S')}", file=f)
             print(f"Trading Pair: {order['symbol']}", file=f)
             print(f"Base quantity: {order['filled']}", file=f)
             print(f"Avg price: {order['average']}", file=f)
@@ -251,7 +251,7 @@ class DcaBot:
         datetime_str = order['datetime']
         original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
         # Convert the original datetime to Lisbon time
-        lisbon_datetime = original_datetime.astimezone(self.timezone)
+        datetime = original_datetime.astimezone(self.timezone)
 
         # Print the order details to .txt
         with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
@@ -259,7 +259,7 @@ class DcaBot:
             print(f"Limit order placed", file=f)
             print(f"Order ID: {order['id']}", file=f)
             print(f"Order type: {order['type']}", file=f)
-            print(f"Time: {lisbon_datetime.strftime('%Y-%m-%d %H:%M:%S')}", file=f)
+            print(f"Time: {datetime.strftime('%Y-%m-%d %H:%M:%S')}", file=f)
             print(f"Trading Pair: {order['symbol']}", file=f)
             print(f"Base quantity: {order['amount']}", file=f)
             print(f"Limit price: {order['price']}", file=f)
@@ -297,6 +297,30 @@ class DcaBot:
 
         return exch_handle
 
+    def get_automatic_timezone(self):
+        """
+        Detects the system's local timezone automatically.
+
+        Returns:
+            str: The name of the local timezone (e.g., 'Europe/Lisbon').
+        """
+        try:
+            local_timezone = get_localzone()
+            
+            # For pytz objects, use the 'zone' attribute.
+            if hasattr(local_timezone, 'zone'):
+                timezone_name = local_timezone.zone
+            else:
+                # For ZoneInfo objects, convert to string.
+                timezone_name = str(local_timezone)
+
+            return timezone_name
+
+        except Exception as e:
+            print(f"Error detecting local timezone: {e}")
+            # Fallback to 'UTC' if detection fails
+            return pytz.utc
+
     def read_config(self):
         try:
             # Parse the config file
@@ -305,6 +329,15 @@ class DcaBot:
 
                 # Read all the values from the json
                 self.initial_sleep_s = config.get("initial_sleep_s", 0)
+                time_zone_option = config.get("timezone", "auto-detect")
+                if(time_zone_option == "auto-detect"):
+                    #call autodetect timezone based on machine
+                    self.timezone = self.get_automatic_timezone()
+                else:
+                    # use the string directly
+                    # 'Europe/Lisbon', 'Europe/Prague', 'Europe/Rome',...
+                    self.timezone = pytz.timezone(time_zone_option)
+
                 self.exchange_name = config.get("exchange_name", "binance").lower()
                 self.periodHours = config.get("period_hours", 12)
                 self.apiKey = config.get("api_key")
@@ -312,6 +345,7 @@ class DcaBot:
                 self.order_type = config.get("order_type", "market").lower()
                 self.side = config.get("side", "buy").lower()
                 self.maxTimeOpen = config.get("max_time_open", 2)
+
 
                 config_str = "\n".join([f"Exchange Name: {self.exchange_name}",
                                         f"Period Hours: {self.periodHours}",
