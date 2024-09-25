@@ -8,6 +8,7 @@
   "below_above_prc": 0.1,
   "max_time_open": 6,
   "initial_sleep_s": 1,
+  "timezone": "auto-detect",
   "pairs": {
     "BTC/EUR": 11,
     "ETH/EUR": 25,
