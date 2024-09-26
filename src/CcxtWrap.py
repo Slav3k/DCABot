@@ -16,7 +16,7 @@ class DcaBot:
         # Initialize the class with the provided directory
         self.directory = directory
         self.config_file = config_file
-        self.add_entry_boot_log()
+        self.log_add_line()
         self.read_config()
 
         # wait x seconds before we start the bot
@@ -25,12 +25,12 @@ class DcaBot:
         self.exch_handle = self.create_exchange(self.apiKey, self.apiSecret, self.exchange_name)
         self.open_orders = []
 
-    def add_entry_boot_log(self, log_msg="", script_directory=""):
+    def log_add_line(self, log_msg="", log_dir=""):
         try:
-            if script_directory == "":
-                script_directory = self.directory
+            if log_dir == "":
+                log_dir = self.directory
 
-            with open(os.path.join(script_directory, "bootlog.txt"), "a") as f:
+            with open(os.path.join(log_dir, "bootlog.txt"), "a") as f:
                 if log_msg:
                     print(log_msg, file=f)
                 else:
@@ -306,7 +306,7 @@ class DcaBot:
         """
         try:
             local_timezone = get_localzone()
-            
+
             # For pytz objects, use the 'zone' attribute.
             if hasattr(local_timezone, 'zone'):
                 timezone_name = local_timezone.zone
@@ -352,7 +352,7 @@ class DcaBot:
                                         f"Order Type: {self.order_type}",
                                         f"Side: {self.side}",])
 
-                self.add_entry_boot_log(config_str)
+                self.log_add_line(config_str)
 
         except FileNotFoundError:
             error_msg = "Config file not found. Using default values."
@@ -362,7 +362,7 @@ class DcaBot:
 
             log_message = "\n".join([error_msg, directory_msg, config_file_msg, together_msg])
             print(log_message)
-            self.add_entry_boot_log(log_message)
+            self.log_add_line(log_message)
             raise ConfigFileNotFoundError("Config file not found. Exiting program.") from None
 
 
