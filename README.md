@@ -99,9 +99,10 @@ sudo systemctl enable dcabot.service
 #### Disable a Service 
 sudo systemctl disable dcabot.service
 - prevents from starting automatically at boot
-#### Checks if enabled
+#### Check if enabled
 systemctl is-enabled dcabot.service
-#### View Service Logs Displays the last 100 log entries for the 'dcabot.service'
+#### View Service Logs 
 sudo journalctl -u dcabot.service -n 100 --no-pager
-#### Lists all services whose names contain 'DCA'
+- Displays the last 100 log entries for the 'dcabot.service'
+#### List all services whose names contain 'DCA'
 systemctl list-units --type=service | grep -i DCA
