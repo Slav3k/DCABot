@@ -8,6 +8,7 @@ import pytz
 import os
 from tzlocal import get_localzone
 import sys
+import syslog
 
 class ConfigFileNotFoundError(Exception):
     pass
@@ -35,7 +36,8 @@ class DcaBot:
             # Attempt to fetch account balance as a benign authenticated call
             balance = self.exch_handle.fetch_balance()
         except Exception as e:
-            self.log_add_line(f"Error verifying API credentials. Check if your API keys are correct.")
+            self.log_add_line(f"Error verifying echange API credentials. Check if your API keys are correct.")
+            syslog.syslog(syslog.LOG_ERR, f"Error verifying echange API credentials. Check if your API keys are correct.")
             sys.exit(1)
 
     def log_add_boot_entry(self):
