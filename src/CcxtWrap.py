@@ -16,7 +16,7 @@ class DcaBot:
         # Initialize the class with the provided directory
         self.directory = directory
         self.config_file = config_file
-        self.log_add_line()
+        self.log_add_boot_entry()
         self.read_config()
 
         # wait x seconds before we start the bot
@@ -25,24 +25,26 @@ class DcaBot:
         self.exch_handle = self.create_exchange(self.apiKey, self.apiSecret, self.exchange_name)
         self.open_orders = []
 
-    def log_add_line(self, log_msg="", log_dir=""):
+    def log_add_boot_entry(self):
+        ct = datetime.now()
+
+        self.log_add_line("")
+        self.log_add_line("**********************************")
+        self.log_add_line(f"Boot time: {datetime.fromtimestamp(int(ct.timestamp()))}")
+        self.log_add_line(f"PWD: {self.directory}")
+        self.log_add_line(f"Config file: {self.config_file}")
+
+
+    def log_add_line(self, log_msg, log_dir=""):
         try:
             if log_dir == "":
                 log_dir = self.directory
 
-            with open(os.path.join(log_dir, "bootlog.txt"), "a") as f:
-                if log_msg:
-                    print(log_msg, file=f)
-                else:
-                    ct = datetime.now()
-                    print("")
-                    print("**********************************", file=f)
-                    print("Boot time: ", datetime.fromtimestamp(int(ct.timestamp())), file=f)
-                    print("PWD: " + self.directory, file=f)
-                    print("config file: " + self.config_file, file=f)
+            with open(os.path.join(log_dir, "log.txt"), "a") as f:
+                print(log_msg, file=f)
 
         except (FileNotFoundError, OSError) as e:
-            print(f"An error occurred while adding entry to boot log: {e}")
+            print(f"An error occurred while adding entry to log: {e}")
 
     def start(self):
         self.schedule_order()
@@ -333,10 +335,12 @@ class DcaBot:
                 if(time_zone_option == "auto-detect"):
                     #call autodetect timezone based on machine
                     self.timezone = self.get_automatic_timezone()
+                    self.log_add_line(f"Autodetected timezone from device: {self.timezone}")
                 else:
                     # use the string directly
                     # 'Europe/Lisbon', 'Europe/Prague', 'Europe/Rome',...
                     self.timezone = pytz.timezone(time_zone_option)
+                    self.log_add_line(f"Timezone from config: {self.timezone}")
 
                 self.exchange_name = config.get("exchange_name", "binance").lower()
                 self.periodHours = config.get("period_hours", 12)
