@@ -1,6 +1,20 @@
 # DCABot
 Dca bot written in python that is relying on CCXT. Note that currently one instance of bot can only do sell or buy and only with one period. If you need both buy and sell and various periods, you will have to create multiple instances of the bot to achieve that. In future releases I plan to enable buy and sell and multiple periods from one instance of the bot.
 
+[!WARNING]
+This DCA Crypto Bot is provided "as is" without any warranties of any kind, express or implied. By using this bot, you acknowledge that it is entirely at your own risk.
+
+The author of this bot assumes no responsibility for any financial losses, damages, or other consequences that may arise from the use of this bot. Cryptocurrency trading is highly volatile and involves significant risk. Users are strongly advised to conduct their own research, understand the risks involved, and use this bot only if they are comfortable with potential losses.
+
+By using this bot, you agree to the following:
+
+You understand and accept that the author of this bot is not liable for any trading losses, technical failures, or other damages that may result from its use.  
+You assume full responsibility for any actions or trades executed by this bot and acknowledge that the author cannot be held responsible for any negative outcomes.  
+You will not hold the author liable for any errors, bugs, or unexpected behavior of the bot.  
+
+[!WARNING]
+The bot currently supports only market buy / sell. The limit (aka below_above) is still under development.
+
 ## DCA Bot Configuration
 Below is a sample configuration for the DCA bot. Please edit the values in the config.json file according to your needs.
 ```
