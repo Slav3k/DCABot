@@ -1,5 +1,5 @@
 # DCABot
-Dca bot written in python that is relying on CCXT. Note that currently one instance of bot can only do sell or buy and only on with one period. If you need both buy and sell and various periods, you will have to create multiple instances of the bot to achieve that. In future releases I plan to enable buy and sell and multiple periods from one instance of the bot.
+Dca bot written in python that is relying on CCXT. Note that currently one instance of bot can only do sell or buy and only with one period. If you need both buy and sell and various periods, you will have to create multiple instances of the bot to achieve that. In future releases I plan to enable buy and sell and multiple periods from one instance of the bot.
 
 ## DCA Bot Configuration
 Below is a sample configuration for the DCA bot. Please edit the values in the config.json file according to your needs.
