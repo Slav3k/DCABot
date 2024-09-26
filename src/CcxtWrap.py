@@ -7,6 +7,7 @@ import json
 import pytz
 import os
 from tzlocal import get_localzone
+import sys
 
 class ConfigFileNotFoundError(Exception):
     pass
@@ -23,7 +24,19 @@ class DcaBot:
         time.sleep(self.initial_sleep_s)
 
         self.exch_handle = self.create_exchange(self.apiKey, self.apiSecret, self.exchange_name)
+        self.verify_API_keys()
         self.open_orders = []
+
+    def verify_API_keys(self):
+        """
+        Verifies API credentials by making an authenticated API call.
+        """
+        try:
+            # Attempt to fetch account balance as a benign authenticated call
+            balance = self.exch_handle.fetch_balance()
+        except Exception as e:
+            self.log_add_line(f"Error verifying API credentials. Check if your API keys are correct.")
+            sys.exit(1)
 
     def log_add_boot_entry(self):
         ct = datetime.now()
