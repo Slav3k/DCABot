@@ -230,7 +230,7 @@ class DcaBot:
     def print_info_order_closed(self, order):
         datetime_str = order['datetime'] #2023-10-10T22:50:02.802Z
         original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
-        # Convert the original datetime to Lisbon time
+        # Convert the original datetime to local time
         datetime = original_datetime.astimezone(self.timezone)
 
         # Print the order details to .txt
@@ -247,7 +247,7 @@ class DcaBot:
     def print_info_order_canceled(self, order):
         datetime_str = order['datetime'] #2023-10-10T22:50:02.802Z
         original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
-        # Convert the original datetime to Lisbon time
+        # Convert the original datetime to local time
         datetime = original_datetime.astimezone(self.timezone)
 
         # Print the order details to .txt
@@ -265,7 +265,7 @@ class DcaBot:
     def print_info_order_placed(self, order):
         datetime_str = order['datetime']
         original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
-        # Convert the original datetime to Lisbon time
+        # Convert the original datetime to local time
         datetime = original_datetime.astimezone(self.timezone)
 
         # Print the order details to .txt
