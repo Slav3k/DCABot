@@ -112,7 +112,7 @@ class DcaBot:
             order['datetime'] = formatted_time
             self.open_orders.append({order['id'], order['symbol'], order['datetime']})
 
-            self.print_info_order_placed(order)
+            self.print_info_order(order, "placed")
 
         except ccxt.BaseError as e:
             print(f"An error occurred in place_buy_below_ask_order: {e}")
@@ -138,7 +138,7 @@ class DcaBot:
                         #refetch the otrder to update time
                         #TODO: test the if the time is updated after the cancelation
                         order_fetched = self.exch_handle.fetch_order(order_id, symbol=symbol)
-                        self.print_info_order_canceled(order_fetched)
+                        self.print_info_order(order_fetched, "canceled")
                         # Remove the order from open_orders
                         self.open_orders.remove(order_info)
                         # if there is some unfilled amount, finish it as market order
@@ -156,12 +156,12 @@ class DcaBot:
                         continue
                 elif order_fetched['status'] == 'closed':
                     # Order has been filled fully (closed), print order info and remove it from open_orders
-                    self.print_info_order_closed(order_fetched)
+                    self.print_info_order(order_fetched, "closed")
                     self.open_orders.remove(order_info)
                 elif order_fetched['status'] == 'canceled':
                     # Order has been canceled, remove it from open_orders
                     self.open_orders.remove(order_info)
-                    self.print_info_order_canceled(order_fetched)
+                    self.print_info_order(order_fetched, "canceled")
                 else:
                     # Handle other valid cases here (if any)
                     # TODO: Implement your handling logic here
@@ -193,7 +193,7 @@ class DcaBot:
                     break
                 time.sleep(1) # seconds
 
-            self.print_info_order_closed(order_fetched)
+            self.print_info_order(order_fetched, "closed")
 
         except ccxt.BaseError as e:
             print(f"An error occurred in buy_market: {e}")
@@ -220,64 +220,39 @@ class DcaBot:
                     break
                 time.sleep(1) # seconds
 
-            self.print_info_order_closed(order_fetched)
+            self.print_info_order(order_fetched, "closed")
 
         except ccxt.BaseError as e:
             print(f"An error occurred in sell_market: {e}")
 
-
-    #TODO: create unified print that prints based on open, closed, canceled ...
-    def print_info_order_closed(self, order):
-        datetime_str = order['datetime'] #2023-10-10T22:50:02.802Z
+    def print_info_order(self, order, status):
+        datetime_str = order['datetime']  # Assuming format: 2023-10-10T22:50:02.802Z
         original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
-        # Convert the original datetime to local time
-        datetime = original_datetime.astimezone(self.timezone)
+        # Convert the original datetime to Lisbon time
+        local_datetime = original_datetime.astimezone(self.timezone)
 
-        # Print the order details to .txt
-        with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
-            print("***********************", file=f)
-            print(f"Trading Pair: {order['symbol']}", file=f)
-            print(f"Avg price: {order['average']}", file=f)
-            print(f"Base quantity: {order['filled']}", file=f)
-            print(f"Order type: {order['type']}", file=f)
-            print(f"Time: {datetime.strftime('%Y-%m-%d %H:%M:%S')}", file=f)
-            print(f"Status: {order['status']}", file=f)
-            print(f"Order ID: {order['id']}", file=f)
-
-    def print_info_order_canceled(self, order):
-        datetime_str = order['datetime'] #2023-10-10T22:50:02.802Z
-        original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
-        # Convert the original datetime to local time
-        datetime = original_datetime.astimezone(self.timezone)
-
-        # Print the order details to .txt
+        # Open the file for appending the order details
         with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
             print("***********************", file=f)
             print(f"Order ID: {order['id']}", file=f)
-            print(f"Order type: {order['type']}", file=f)
-            print(f"Time: {datetime.strftime('%Y-%m-%d %H:%M:%S')}", file=f)
+            print(f"Order type: {order['type']} - {order['side']}", file=f)
+            print(f"Time: {local_datetime.strftime('%Y-%m-%d %H:%M:%S')}", file=f)
             print(f"Trading Pair: {order['symbol']}", file=f)
-            print(f"Base quantity: {order['filled']}", file=f)
-            print(f"Avg price: {order['average']}", file=f)
-            print(f"Spent: {order['cost']}", file=f)
-            print(f"Status: {order['status']}", file=f)
 
-    def print_info_order_placed(self, order):
-        datetime_str = order['datetime']
-        original_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
-        # Convert the original datetime to local time
-        datetime = original_datetime.astimezone(self.timezone)
-
-        # Print the order details to .txt
-        with open(os.path.join(self.directory, "OrderLog.txt"), "a") as f:
-            print("***********************", file=f)
-            print(f"Limit order placed", file=f)
-            print(f"Order ID: {order['id']}", file=f)
-            print(f"Order type: {order['type']}", file=f)
-            print(f"Time: {datetime.strftime('%Y-%m-%d %H:%M:%S')}", file=f)
-            print(f"Trading Pair: {order['symbol']}", file=f)
-            print(f"Base quantity: {order['amount']}", file=f)
-            print(f"Limit price: {order['price']}", file=f)
+            # Switch behavior based on the 'status' parameter
+            if status == 'closed':
+                print(f"Avg price: {order['average']}", file=f)
+                print(f"Base quantity: {order['filled']}", file=f)
+                print(f"Status: {order['status']}", file=f)
+            elif status == 'canceled':
+                print(f"Base quantity: {order['filled']}", file=f)
+                print(f"Avg price: {order['average']}", file=f)
+                print(f"Spent: {order['cost']}", file=f)
+                print(f"Status: {order['status']}", file=f)
+            elif status == 'placed':
+                print("Limit order placed", file=f)
+                print(f"Base quantity: {order['amount']}", file=f)
+                print(f"Limit price: {order['price']}", file=f)
 
     def execute_buy_orders_market(self):
         with open(os.path.join(self.directory, self.config_file), "r") as read_json:
@@ -347,7 +322,7 @@ class DcaBot:
                 time_zone_option = config.get("timezone", "auto-detect")
                 if(time_zone_option == "auto-detect"):
                     #call autodetect timezone based on machine
-                    self.timezone = self.get_automatic_timezone()
+                    self.timezone = pytz.timezone(self.get_automatic_timezone())
                     self.log_add_line(f"Autodetected timezone from device: {self.timezone}")
                 else:
                     # use the string directly
