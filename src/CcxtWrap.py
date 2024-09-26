@@ -35,9 +35,9 @@ class DcaBot:
                     print(log_msg, file=f)
                 else:
                     ct = datetime.now()
+                    print("")
                     print("**********************************", file=f)
                     print("Boot time: ", datetime.fromtimestamp(int(ct.timestamp())), file=f)
-                    print("")
                     print("PWD: " + self.directory, file=f)
                     print("config file: " + self.config_file, file=f)
 
