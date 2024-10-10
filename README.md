@@ -106,3 +106,4 @@ sudo journalctl -u dcabot.service -n 100 --no-pager
 - Displays the last 100 log entries for the 'dcabot.service'
 #### List all services whose names contain 'DCA'
 systemctl list-units --type=service | grep -i DCA
+
