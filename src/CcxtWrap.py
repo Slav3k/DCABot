@@ -75,11 +75,14 @@ class DcaBot:
     def schedule_order(self):
         if self.side == "buy":
             if self.order_type == "below_above":
-                schedule.every(int(self.periodHours * 60)).minutes.do(self.execute_buy_orders_below)
+                raise NotImplementedError("Buy order 'below/above' is not implemented yet")
             else:
                 schedule.every(int(self.periodHours * 60)).minutes.do(self.execute_buy_orders_market)
         elif self.side == "sell":
-            raise NotImplementedError("Sell order scheduling is not implemented yet")
+            if self.order_type == "below_above":
+                raise NotImplementedError("Sell order 'below/above' is not implemented yet")
+            else:
+                schedule.every(int(self.periodHours * 60)).minutes.do(self.execute_sell_orders_market)
         else:
             raise ValueError("Invalid 'side' value")
 
@@ -263,6 +266,14 @@ class DcaBot:
             for pair in pairs:
                 quote_qty = pairs[pair]
                 self.buy_market(pair, quote_qty)
+
+    def execute_sell_orders_market(self):
+        with open(os.path.join(self.directory, self.config_file), "r") as read_json:
+            config = json.load(read_json)
+            pairs = config["pairs"]
+            for pair in pairs:
+                quote_qty = pairs[pair]
+                self.sell_market(pair, quote_qty)
 
     def execute_buy_orders_below(self):
         with open(os.path.join(self.directory, self.config_file), "r") as read_json:
