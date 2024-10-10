@@ -69,6 +69,7 @@ class DcaBot:
         # endless loop
         while True:
             schedule.run_pending()
+            #TODO: check_open_orders()
             time.sleep(1)  # wait 1 sec
 
     def schedule_order(self):
@@ -90,6 +91,90 @@ class DcaBot:
         print(f"Using exchange: {self.exchange_name}")
         print(f"Period: {self.periodHours} hrs")
         print(f"Order type: {self.order_type}")
+
+    def place_buy_below_ask_order(self, trading_pair, quote_qty, percentage_below):
+        try:
+            # Fetch the ticker price for the trading pair
+            ticker = self.exch_handle.fetch_ticker(trading_pair)
+            ask_price = ticker['ask']
+
+            # Calculate the price for your limit order X% below the current ask price
+            limit_price = ask_price * (1 - (percentage_below / 100))
+
+            # calculate base quantity based on the quote_qty and limit_price
+            base_qty = quote_qty / limit_price
+
+            # Place the limit order
+            order = self.exch_handle.create_limit_buy_order(trading_pair, base_qty, limit_price)
+            #for some reason, the datetime is not filled in by the exchange, lets fix that
+            # Get the current time in UTC
+            # format from kraken is 2023-10-10T22:50:02.802Z
+            # Get the current time in UTC
+            current_time_utc = datetime.now(timezone.utc)
+            # Format the UTC time to match the desired format
+            formatted_time = current_time_utc.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            # Assign the formatted time to the 'datetime' field
+            order['datetime'] = formatted_time
+            self.open_orders.append({order['id'], order['symbol'], order['datetime']})
+
+            self.print_info_order(order, "placed")
+
+        except ccxt.BaseError as e:
+            print(f"An error occurred in place_buy_below_ask_order: {e}")
+
+    def check_open_orders(self):
+        current_time = datetime.now()
+
+        for order_info in list(self.open_orders):  # Create a copy of open_orders for iteration
+            order_id, symbol, datetime_iso8601 = order_info
+
+            try:
+                # Fetch the order status
+                order_fetched = self.exch_handle.fetch_order(order_id, symbol=symbol)
+
+                if order_fetched['status'] == 'open':
+                    # Calculate the time difference
+                    order_datetime = datetime.fromisoformat(datetime_iso8601)
+                    time_difference = current_time - order_datetime
+
+                    if time_difference > self.maxTimeOpen:
+                        # Order is older than maxTimeOpen, cancel it and perform market buy
+                        self.exch_handle.cancel_order(order_id, symbol=symbol)
+                        #refetch the otrder to update time
+                        #TODO: test the if the time is updated after the cancelation
+                        order_fetched = self.exch_handle.fetch_order(order_id, symbol=symbol)
+                        self.print_info_order(order_fetched, "canceled")
+                        # Remove the order from open_orders
+                        self.open_orders.remove(order_info)
+                        # if there is some unfilled amount, finish it as market order
+                        trading_pair = order_fetched['symbol']
+                        ticker = self.exch_handle.fetch_ticker(trading_pair)
+                        ask_price = ticker['ask']
+                        filled = order_fetched['filled']
+                        amount = order_fetched['amount']
+                        remaining_base = amount - filled
+                        remaining_quote = remaining_base * ask_price
+                        self.buy_market(trading_pair, remaining_quote)
+
+                    else:
+                        # Order is still open and not is not expired (maxTimeOpen), do nothing
+                        continue
+                elif order_fetched['status'] == 'closed':
+                    # Order has been filled fully (closed), print order info and remove it from open_orders
+                    self.print_info_order(order_fetched, "closed")
+                    self.open_orders.remove(order_info)
+                elif order_fetched['status'] == 'canceled':
+                    # Order has been canceled, remove it from open_orders
+                    self.open_orders.remove(order_info)
+                    self.print_info_order(order_fetched, "canceled")
+                else:
+                    # Handle other valid cases here (if any)
+                    # TODO: Implement your handling logic here
+                    pass
+
+            except ccxt.BaseError as e:
+                # Handle exceptions that occur during the order status check
+                print(f"An error occurred while checking order status: {e}")
 
     def buy_market(self, trading_pair, quote_qty):
         try:
@@ -189,6 +274,15 @@ class DcaBot:
             for pair in pairs:
                 quote_qty = pairs[pair]
                 self.sell_market(pair, quote_qty)
+
+    def execute_buy_orders_below(self):
+        with open(os.path.join(self.directory, self.config_file), "r") as read_json:
+            config = json.load(read_json)
+            pairs = config["pairs"]
+            below_ask = config.get("below_above_prc", 0.1)
+            for pair in pairs:
+                quote_qty = pairs[pair]
+                self.place_buy_below_ask_order(pair, quote_qty, below_ask)
 
     def create_exchange(self, api_key, api_secret, exchange_name):
         if exchange_name == 'kraken':
