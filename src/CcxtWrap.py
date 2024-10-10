@@ -344,7 +344,7 @@ class DcaBot:
                     self.log_add_line(f"Timezone from config: {self.timezone}")
 
                 self.exchange_name = config.get("exchange_name", "binance").lower()
-                self.periodHours = config.get("period_hours", 12)
+                self.periodHours = config.get("period_hours", 12.0)
                 self.apiKey = config.get("api_key")
                 self.apiSecret = config.get("api_secret")
                 self.order_type = config.get("order_type", "market").lower()
